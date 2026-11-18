@@ -22,7 +22,10 @@ def get_embedding_model() -> SentenceTransformer:
 
 class VectorMemoryStore:
     def __init__(self, db_url: str | None = None):
-        self.db_url = db_url or os.getenv("DATABASE_URL")
+        raw_url = db_url or os.getenv("DATABASE_URL", "")
+        if "localhost:5433" in raw_url or "127.0.0.1:5433" in raw_url:
+            raw_url = ""
+        self.db_url = raw_url
         self._fallback_memories: list[dict[str, Any]] = []
         self._db_available = False
         if self.db_url:

@@ -13,10 +13,10 @@ from fastapi import Cookie, HTTPException, Response
 
 load_dotenv()
 
-DATABASE_URL = os.getenv(
-    "DATABASE_URL",
-    "postgresql://assistant:assistant@localhost:5433/assistant",
-)
+DATABASE_URL = os.getenv("DATABASE_URL", "")
+if "localhost:5433" in DATABASE_URL or "127.0.0.1:5433" in DATABASE_URL:
+    DATABASE_URL = ""
+
 # Secret for signing cookies (uses env var or generates an ephemeral key per run)
 SESSION_SECRET = os.getenv("SESSION_SECRET") or os.getenv("GROQ_API_KEY") or secrets.token_hex(32)
 COOKIE_NAME = "mcp_session"
@@ -24,6 +24,8 @@ SESSION_TTL_SECONDS = 86400 * 7  # 7 days
 
 
 def _get_conn():
+    if not DATABASE_URL:
+        raise ValueError("No database URL configured")
     return psycopg.connect(DATABASE_URL, autocommit=True)
 
 

@@ -197,17 +197,20 @@ def should_continue(state: AgentState) -> str:
 
 def get_agent_graph():
     """Builds and compiles graph using Postgres checkpointer with MemorySaver fallback."""
-    db_url = os.getenv("DATABASE_URL")
+    db_url = os.getenv("DATABASE_URL", "")
     checkpointer = None
 
-    if db_url:
+    if db_url and "localhost:5433" not in db_url and "127.0.0.1:5433" not in db_url:
         try:
             pool = ConnectionPool(
                 conninfo=db_url,
                 max_size=10,
-                open=True,
+                open=False,
                 kwargs={"autocommit": True, "prepare_threshold": 0},
             )
+            pool.open()
+            with pool.connection() as test_conn:
+                test_conn.execute("SELECT 1")
             pg_saver = PostgresSaver(pool)
             pg_saver.setup()
             checkpointer = pg_saver
