@@ -1,0 +1,1418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MCP Assistant — Engineering Workspace</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<style>
+:root {
+  --canvas-bg: #0A0713;
+  --sidebar-bg: #120E22;
+  --sidebar-surface: #1E1736;
+  --sidebar-border: rgba(255, 255, 255, 0.08);
+  --sidebar-text: #F5F0FF;
+  --sidebar-muted: #9A8EB8;
+  
+  --panel-bg: #FAF8FC;
+  --panel-surface: #FFFFFF;
+  --panel-border: #EBE3F5;
+  --text-main: #1D152C;
+  --text-muted: #74688C;
+  
+  --accent: #9333EA;
+  --accent-hover: #A855F7;
+  --accent-subtle: rgba(147, 51, 234, 0.12);
+  --accent-glow: rgba(147, 51, 234, 0.35);
+  
+  --ai-bubble: #FFFFFF;
+  --ai-text: #1D152C;
+  
+  --radius-lg: 16px;
+  --radius-md: 10px;
+  --radius-sm: 6px;
+  --font-main: "Plus Jakarta Sans", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+  --transition: 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--font-main);
+  background: 
+    radial-gradient(ellipse 900px 600px at 15% 15%, rgba(139, 92, 246, 0.28), transparent 70%),
+    radial-gradient(ellipse 800px 500px at 85% 85%, rgba(217, 70, 239, 0.22), transparent 70%),
+    radial-gradient(ellipse 600px 400px at 50% 50%, rgba(245, 158, 11, 0.08), transparent 60%),
+    var(--canvas-bg);
+  color: var(--text-main);
+  height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.25rem;
+  overflow: hidden;
+}
+
+.hidden { display: none !important; }
+
+/* ══════════════════════════════════════════
+   1. AUTHENTICATION VIEW
+   ══════════════════════════════════════════ */
+#auth-view {
+  width: 100%;
+  max-width: 410px;
+  background: var(--sidebar-bg);
+  border: 1px solid var(--sidebar-border);
+  border-radius: var(--radius-lg);
+  padding: 2.75rem 2.25rem;
+  color: var(--sidebar-text);
+  box-shadow: 0 30px 80px rgba(0,0,0,0.35);
+  animation: fadeIn 0.25s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.auth-header {
+  text-align: center;
+  margin-block-end: 2rem;
+}
+
+.auth-logo-badge {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: var(--accent);
+  color: #FFF;
+  display: inline-grid;
+  place-items: center;
+  font-weight: 800;
+  font-size: 1.15rem;
+  margin-block-end: 0.85rem;
+  box-shadow: 0 4px 16px var(--accent-glow);
+}
+
+.auth-header h1 {
+  font-size: 1.35rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: #FFF;
+}
+
+.auth-header p {
+  font-size: 0.86rem;
+  color: var(--sidebar-muted);
+  margin-block-start: 0.35rem;
+}
+
+.auth-tabs {
+  display: flex;
+  background: #141210;
+  border-radius: var(--radius-md);
+  padding: 4px;
+  margin-block-end: 1.75rem;
+  border: 1px solid var(--sidebar-border);
+}
+
+.auth-tab-btn {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: var(--sidebar-muted);
+  padding: 0.55rem;
+  font-size: 0.88rem;
+  font-weight: 600;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.auth-tab-btn.active {
+  background: var(--sidebar-surface);
+  color: #FFF;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-block-end: 1.15rem;
+}
+
+.form-group label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--sidebar-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.form-group input {
+  background: #141210;
+  border: 1px solid var(--sidebar-border);
+  border-radius: var(--radius-sm);
+  padding: 0.75rem 0.95rem;
+  color: #FFF;
+  font-size: 0.92rem;
+  font-family: inherit;
+  outline: none;
+  transition: border-color var(--transition);
+}
+
+.form-group input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-subtle);
+}
+
+.btn-submit {
+  width: 100%;
+  padding: 0.8rem;
+  background: linear-gradient(135deg, #9333EA 0%, #C026D3 100%);
+  color: #FFF;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 0.92rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-block-start: 0.5rem;
+  box-shadow: 0 4px 16px var(--accent-glow);
+  transition: all var(--transition);
+}
+
+.btn-submit:hover {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+}
+
+.auth-err {
+  color: #E05656;
+  font-size: 0.82rem;
+  text-align: center;
+  margin-block-start: 0.85rem;
+  min-height: 1.2em;
+}
+
+/* ══════════════════════════════════════════
+   2. MAIN WORKSPACE CONTAINER
+   ══════════════════════════════════════════ */
+#workspace {
+  width: 100%;
+  max-width: 1380px;
+  height: 94vh;
+  background: var(--panel-bg);
+  border-radius: var(--radius-lg);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 
+    0 30px 90px -15px rgba(10, 7, 19, 0.85),
+    0 0 50px -10px rgba(147, 51, 234, 0.28),
+    0 0 0 1px rgba(255, 255, 255, 0.1);
+  display: grid;
+  grid-template-columns: 250px 1fr;
+  overflow: hidden;
+  animation: fadeIn 0.2s ease-out;
+}
+
+/* ── SIDEBAR ── */
+.sidebar {
+  background: var(--sidebar-bg);
+  border-inline-end: 1px solid var(--sidebar-border);
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem 1.15rem;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: #FFF;
+  font-weight: 700;
+  font-size: 1.05rem;
+  letter-spacing: -0.01em;
+  margin-block-end: 2.25rem;
+}
+
+.brand-badge {
+  width: 26px;
+  height: 26px;
+  border-radius: 7px;
+  background: var(--accent);
+  color: #FFF;
+  font-size: 0.82rem;
+  font-weight: 800;
+  display: grid;
+  place-items: center;
+}
+
+.nav-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  flex: 1;
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.7rem 0.85rem;
+  border-radius: var(--radius-md);
+  color: var(--sidebar-muted);
+  font-size: 0.9rem;
+  font-weight: 500;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all var(--transition);
+  text-align: start;
+}
+
+.nav-link svg {
+  width: 18px;
+  height: 18px;
+  stroke: currentColor;
+  stroke-width: 2;
+  fill: none;
+  flex-shrink: 0;
+}
+
+.nav-link:hover {
+  background: rgba(255,255,255,0.05);
+  color: var(--sidebar-text);
+}
+
+.nav-link.active {
+  background: var(--accent-subtle);
+  color: #FFF;
+  font-weight: 600;
+}
+
+.nav-link.active svg {
+  stroke: var(--accent);
+}
+
+.sidebar-foot {
+  border-block-start: 1px solid var(--sidebar-border);
+  padding-block-start: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.user-profile {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.user-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--sidebar-surface);
+  color: var(--accent);
+  font-size: 0.82rem;
+  font-weight: 700;
+  display: grid;
+  place-items: center;
+}
+
+.user-meta {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.user-name {
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: var(--sidebar-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.user-status {
+  font-size: 0.72rem;
+  color: #55B56E;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.status-dot {
+  width: 6px;
+  height: 6px;
+  background: #55B56E;
+  border-radius: 50%;
+}
+
+.btn-signout {
+  width: 100%;
+  padding: 0.5rem;
+  background: transparent;
+  border: 1px solid var(--sidebar-border);
+  border-radius: var(--radius-sm);
+  color: var(--sidebar-muted);
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.btn-signout:hover {
+  background: rgba(224, 86, 86, 0.1);
+  border-color: rgba(224, 86, 86, 0.3);
+  color: #E05656;
+}
+
+/* ── MAIN WORKSPACE PANELS ── */
+.panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  background: var(--panel-bg);
+}
+
+.panel-head {
+  padding: 1.25rem 2rem;
+  border-block-end: 1px solid var(--panel-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.panel-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--text-main);
+}
+
+.btn-action {
+  background: linear-gradient(135deg, #9333EA 0%, #C026D3 100%);
+  color: #FFF;
+  border: none;
+  padding: 0.55rem 1.15rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 14px var(--accent-glow);
+  transition: all var(--transition);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.btn-action:hover {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+}
+
+/* ══════════════════════════════════════════
+   3. CHAT VIEW
+   ══════════════════════════════════════════ */
+.chat-stream {
+  flex: 1;
+  overflow-y: auto;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+/* Welcome empty state */
+.chat-welcome {
+  margin: auto;
+  max-width: 540px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.welcome-icon {
+  width: 48px;
+  height: 48px;
+  background: var(--accent-subtle);
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  color: var(--accent);
+  font-size: 1.4rem;
+}
+
+.chat-welcome h3 {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.chat-welcome p {
+  font-size: 0.92rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+.starter-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: center;
+  margin-block-start: 0.5rem;
+}
+
+.chip {
+  background: #FFFFFF;
+  border: 1px solid var(--panel-border);
+  padding: 0.5rem 0.85rem;
+  border-radius: 20px;
+  font-size: 0.82rem;
+  color: var(--text-main);
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(147, 51, 234, 0.04);
+  transition: all var(--transition);
+}
+
+.chip:hover {
+  border-color: var(--accent);
+  background: #F8F3FF;
+  color: var(--accent);
+  transform: translateY(-1px);
+}
+
+/* Chat Bubbles */
+.msg-bubble {
+  max-width: 76%;
+  padding: 1rem 1.3rem;
+  border-radius: var(--radius-md);
+  font-size: 0.94rem;
+  line-height: 1.6;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.msg-user {
+  align-self: flex-end;
+  background: linear-gradient(135deg, #7C3AED 0%, #C026D3 100%);
+  color: #FFF;
+  border-bottom-right-radius: 3px;
+  box-shadow: 0 4px 18px var(--accent-glow);
+  white-space: pre-wrap;
+}
+
+.msg-assistant {
+  align-self: flex-start;
+  background: #FFFFFF;
+  color: var(--text-main);
+  border: 1px solid var(--panel-border);
+  border-bottom-left-radius: 3px;
+  box-shadow: 0 4px 20px rgba(29, 21, 44, 0.06);
+}
+
+.msg-status {
+  align-self: flex-start;
+  background: #FFFFFF;
+  border: 1px solid var(--panel-border);
+  color: var(--text-muted);
+  border-bottom-left-radius: 3px;
+  font-size: 0.88rem;
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  box-shadow: 0 2px 8px rgba(147, 51, 234, 0.05);
+}
+
+.msg-status .pulse-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+  display: inline-block;
+  animation: pulseDot 1.2s infinite ease-in-out;
+}
+
+@keyframes pulseDot {
+  0%, 100% { opacity: 0.3; transform: scale(0.85); }
+  50% { opacity: 1; transform: scale(1.15); }
+}
+
+/* Assistant Markdown Styling */
+.msg-assistant table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-block: 0.9rem;
+  font-size: 0.88rem;
+  border-radius: 6px;
+  overflow: hidden;
+  background: #FFFFFF;
+  border: 1px solid var(--panel-border);
+}
+
+.msg-assistant th {
+  background: #F5EFFF;
+  color: #7C3AED;
+  padding: 0.65rem 0.85rem;
+  text-align: start;
+  font-weight: 600;
+  border-bottom: 1px solid #E4D8F5;
+}
+
+.msg-assistant td {
+  padding: 0.65rem 0.85rem;
+  border-bottom: 1px solid #F0E8FA;
+  color: var(--text-main);
+}
+
+.msg-assistant tr:last-child td { border-bottom: none; }
+.msg-assistant tr:hover td { background: #FAF5FF; }
+
+.msg-assistant p { margin-block-end: 0.65rem; }
+.msg-assistant p:last-child { margin-block-end: 0; }
+.msg-assistant ul, .msg-assistant ol { margin-block: 0.65rem; padding-inline-start: 1.4rem; }
+.msg-assistant li { margin-block-end: 0.35rem; }
+.msg-assistant a { color: var(--accent); text-decoration: underline; }
+
+.msg-assistant code {
+  background: #F3ECFA;
+  padding: 0.15rem 0.35rem;
+  border-radius: 4px;
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+  color: #7C3AED;
+}
+
+.msg-assistant pre {
+  background: #120D22;
+  padding: 0.85rem;
+  border-radius: var(--radius-sm);
+  overflow-x: auto;
+  margin-block: 0.75rem;
+  border: 1px solid rgba(168, 85, 247, 0.25);
+}
+
+.msg-assistant pre code {
+  background: transparent;
+  color: #F5EDFF;
+  padding: 0;
+}
+
+/* Human In The Loop Card */
+.hitl-card {
+  align-self: flex-start;
+  width: 90%;
+  max-width: 520px;
+  background: #181128;
+  border: 1.5px solid #C026D3;
+  border-radius: var(--radius-md);
+  padding: 1.25rem 1.4rem;
+  box-shadow: 0 12px 36px rgba(192, 38, 211, 0.22), 0 0 24px rgba(124, 58, 237, 0.2);
+  animation: fadeIn 0.25s ease-out;
+  color: #F8F5FF;
+}
+
+.hitl-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #F472B6;
+  font-size: 0.95rem;
+  font-weight: 700;
+  margin-block-end: 0.5rem;
+}
+
+.hitl-details {
+  background: #110B1E;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-sm);
+  padding: 0.75rem 0.95rem;
+  font-size: 0.88rem;
+  margin-block: 0.75rem;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  color: #EFE7FC;
+}
+
+.hitl-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.65rem;
+}
+
+.btn-reject {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.15);
+  color: #C4B5FD;
+  padding: 0.5rem 1.1rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.86rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.btn-reject:hover {
+  border-color: #E05656;
+  color: #E05656;
+  background: rgba(224,86,86,0.15);
+}
+
+.btn-approve {
+  background: linear-gradient(135deg, #9333EA 0%, #C026D3 100%);
+  border: none;
+  color: #FFF;
+  padding: 0.5rem 1.1rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.86rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(192, 38, 211, 0.4);
+  transition: all var(--transition);
+}
+
+.btn-approve:hover { filter: brightness(1.1); transform: translateY(-1px); }
+
+/* Chat Input Dock */
+.chat-dock {
+  padding: 1.25rem 2rem;
+  border-block-start: 1px solid var(--panel-border);
+  display: flex;
+  gap: 0.75rem;
+  background: var(--panel-bg);
+}
+
+.chat-input {
+  flex: 1;
+  background: #FFFFFF;
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius-md);
+  padding: 0.8rem 1.15rem;
+  font-size: 0.94rem;
+  font-family: inherit;
+  color: var(--text-main);
+  outline: none;
+  box-shadow: 0 2px 6px rgba(147, 51, 234, 0.03);
+  transition: border-color var(--transition);
+}
+
+.chat-input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-subtle);
+  background: #FFFFFF;
+}
+
+/* ══════════════════════════════════════════
+   4. KNOWLEDGE BASE / NOTES
+   ══════════════════════════════════════════ */
+.notes-view-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 2rem;
+}
+
+.notes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.25rem;
+}
+
+.note-card {
+  background: #FFFFFF;
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius-md);
+  padding: 1.35rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  box-shadow: 0 2px 8px rgba(147, 51, 234, 0.04);
+  transition: all var(--transition);
+  cursor: pointer;
+}
+
+.note-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--accent);
+  box-shadow: 0 8px 24px rgba(147, 51, 234, 0.12);
+  background: #FFFFFF;
+}
+
+.note-card h4 {
+  font-size: 1rem;
+  color: var(--text-main);
+  font-weight: 700;
+}
+
+.note-card p {
+  font-size: 0.86rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+/* ══════════════════════════════════════════
+   5. SAVED MEMORIES
+   ══════════════════════════════════════════ */
+.memories-view-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.memory-item {
+  background: #FFFFFF;
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius-md);
+  padding: 1rem 1.35rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-size: 0.92rem;
+  color: var(--text-main);
+  box-shadow: 0 2px 6px rgba(147, 51, 234, 0.03);
+}
+
+.memory-indicator {
+  width: 9px;
+  height: 9px;
+  background: var(--accent);
+  border-radius: 50%;
+  flex-shrink: 0;
+  box-shadow: 0 0 10px var(--accent-glow);
+}
+
+/* ══════════════════════════════════════════
+   6. SECURITY AUDIT LOG
+   ══════════════════════════════════════════ */
+.audit-view-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 2rem;
+}
+
+.audit-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #FFFFFF;
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  font-size: 0.88rem;
+  box-shadow: 0 2px 8px rgba(147, 51, 234, 0.04);
+}
+
+.audit-table th {
+  background: #F5EFFF;
+  text-align: start;
+  padding: 0.85rem 1.25rem;
+  font-weight: 600;
+  color: #74688C;
+}
+
+.audit-table td {
+  padding: 0.85rem 1.25rem;
+  border-block-start: 1px solid var(--panel-border);
+  color: var(--text-main);
+}
+
+.audit-table tr:hover td { background: #FAF5FF; }
+
+/* Modal */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(11, 8, 20, 0.7);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: #FFFFFF;
+  border: 1px solid #E5DCF2;
+  border-radius: var(--radius-lg);
+  padding: 2.25rem;
+  width: 100%;
+  max-width: 480px;
+  box-shadow: 0 24px 64px rgba(20, 14, 34, 0.25);
+  color: var(--text-main);
+}
+
+.modal-content h3 {
+  font-size: 1.15rem;
+  margin-block-end: 1rem;
+  letter-spacing: -0.01em;
+  color: var(--text-main);
+}
+
+.modal-content input, .modal-content textarea {
+  width: 100%;
+  padding: 0.75rem;
+  background: #FAF8FC;
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius-sm);
+  margin-block-end: 0.85rem;
+  font-family: inherit;
+  font-size: 0.92rem;
+  color: var(--text-main);
+}
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════
+     1. AUTHENTICATION VIEW
+     ══════════════════════════════════════════ -->
+<div id="auth-view">
+  <div class="auth-header">
+    <div class="auth-logo-badge">M</div>
+    <h1>MCP Assistant</h1>
+    <p>Sign in to your private engineering workspace</p>
+  </div>
+
+  <div class="auth-tabs">
+    <button class="auth-tab-btn active" id="tab-btn-signin" onclick="switchAuthTab('signin')">Sign In</button>
+    <button class="auth-tab-btn" id="tab-btn-signup" onclick="switchAuthTab('signup')">Sign Up</button>
+  </div>
+
+  <form onsubmit="handleAuth(event)">
+    <div class="form-group">
+      <label for="auth-email">Email Address</label>
+      <input type="email" id="auth-email" required placeholder="you@company.com" autocomplete="username">
+    </div>
+    <div class="form-group">
+      <label for="auth-password">Password</label>
+      <input type="password" id="auth-password" required minlength="8" placeholder="••••••••" autocomplete="current-password">
+    </div>
+    <button type="submit" class="btn-submit" id="auth-submit-btn">Enter Workspace</button>
+    <div class="auth-err" id="auth-err"></div>
+  </form>
+</div>
+
+<!-- ══════════════════════════════════════════
+     2. MAIN APPLICATION WORKSPACE
+     ══════════════════════════════════════════ -->
+<div id="workspace" class="hidden">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-badge">M</div>
+      <span>MCP Assistant</span>
+    </div>
+
+    <nav class="nav-group">
+      <button class="nav-link active" id="btn-nav-chat" onclick="switchView('chat')">
+        <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        <span>Assistant Chat</span>
+      </button>
+
+      <button class="nav-link" id="btn-nav-notes" onclick="switchView('notes')">
+        <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        <span>Knowledge Base</span>
+      </button>
+
+      <button class="nav-link" id="btn-nav-memories" onclick="switchView('memories')">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+        <span>Saved Memories</span>
+      </button>
+
+      <button class="nav-link" id="btn-nav-audit" onclick="switchView('audit')">
+        <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        <span>Security Audit</span>
+      </button>
+    </nav>
+
+    <div class="sidebar-foot">
+      <div class="user-profile">
+        <div class="user-avatar" id="avatar-char">U</div>
+        <div class="user-meta">
+          <span class="user-name" id="user-email-text">user@workspace</span>
+          <span class="user-status"><span class="status-dot"></span> Online</span>
+        </div>
+      </div>
+      <button class="btn-signout" onclick="signOut()">Sign Out</button>
+    </div>
+  </aside>
+
+  <!-- PANEL 1: ASSISTANT CHAT -->
+  <section class="panel" id="panel-chat">
+    <header class="panel-head">
+      <h2 class="panel-title">Assistant Chat</h2>
+      <button class="btn-action" onclick="newChat()">+ New Chat</button>
+    </header>
+
+    <div class="chat-stream" id="chat-stream">
+      <div class="chat-welcome" id="chat-welcome">
+        <div class="welcome-icon">⚡</div>
+        <h3>Welcome to your MCP Assistant</h3>
+        <p>I can search your engineering runbooks, manage GitHub issues, and execute write actions with your explicit human approval.</p>
+        <div class="starter-chips">
+          <button class="chip" onclick="quickPrompt('List open issues')">Inspect GitHub Issues</button>
+          <button class="chip" onclick="quickPrompt('What is our policy on paid sick days?')">Check Sick Leave Policy</button>
+          <button class="chip" onclick="quickPrompt('What is our policy on expense claims?')">View Expense Limits</button>
+        </div>
+      </div>
+    </div>
+
+    <footer class="chat-dock">
+      <input type="text" id="chat-dock-input" class="chat-input" placeholder="Type a message or instruction..." onkeydown="handleDockKey(event)">
+      <button class="btn-action" id="btn-send-dock" onclick="sendDockMessage()">Send</button>
+    </footer>
+  </section>
+
+  <!-- PANEL 2: KNOWLEDGE BASE -->
+  <section class="panel hidden" id="panel-notes">
+    <header class="panel-head">
+      <h2 class="panel-title">Knowledge Base & Runbooks</h2>
+      <button class="btn-action" onclick="openNoteModal()">+ Add Note</button>
+    </header>
+    <div class="notes-view-body">
+      <div class="notes-grid" id="notes-grid">
+        <div class="note-card"><h4>Loading runbooks...</h4></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PANEL 3: SAVED MEMORIES -->
+  <section class="panel hidden" id="panel-memories">
+    <header class="panel-head">
+      <h2 class="panel-title">Saved Preferences & Long-Term Memory</h2>
+      <button class="btn-action" onclick="fetchMemories()">Refresh</button>
+    </header>
+    <div class="memories-view-body" id="memories-list">
+      <div class="memory-item">Loading remembered preferences...</div>
+    </div>
+  </section>
+
+  <!-- PANEL 4: SECURITY AUDIT -->
+  <section class="panel hidden" id="panel-audit">
+    <header class="panel-head">
+      <h2 class="panel-title">Security & Action Audit Log</h2>
+      <button class="btn-action" onclick="fetchAudit()">Refresh</button>
+    </header>
+    <div class="audit-view-body">
+      <table class="audit-table">
+        <thead>
+          <tr>
+            <th>Event / Tool Invocation</th>
+            <th>Timestamp (UTC)</th>
+          </tr>
+        </thead>
+        <tbody id="audit-table-body">
+          <tr><td>Loading audit events...</td><td>-</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+</div>
+
+<!-- NOTE MODAL -->
+<div id="note-modal" class="modal-overlay hidden">
+  <div class="modal-content">
+    <h3>Add Documentation Note</h3>
+    <input type="text" id="in-note-title" placeholder="Title (e.g., Release Checklist)">
+    <textarea id="in-note-body" rows="6" placeholder="Markdown documentation content..."></textarea>
+    <div style="display:flex; justify-content:flex-end; gap:0.6rem;">
+      <button class="btn-reject" onclick="closeNoteModal()">Cancel</button>
+      <button class="btn-action" onclick="submitNote()">Save Note</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let currentUser = null;
+let currentThreadId = crypto.randomUUID();
+let activeAuthMode = "signin";
+
+/* ═══ 1. AUTH LOGIC ═══ */
+async function initSession() {
+  try {
+    const res = await fetch("/auth/me", { credentials: "include" });
+    if (res.ok) {
+      currentUser = await res.json();
+      showWorkspace();
+    }
+  } catch (err) {}
+}
+
+function switchAuthTab(mode) {
+  activeAuthMode = mode;
+  document.getElementById("tab-btn-signin").classList.toggle("active", mode === "signin");
+  document.getElementById("tab-btn-signup").classList.toggle("active", mode === "signup");
+  document.getElementById("auth-submit-btn").textContent = mode === "signin" ? "Enter Workspace" : "Create Account";
+  document.getElementById("auth-err").textContent = "";
+}
+
+async function handleAuth(e) {
+  e.preventDefault();
+  const email = document.getElementById("auth-email").value.trim();
+  const password = document.getElementById("auth-password").value;
+  const errEl = document.getElementById("auth-err");
+  errEl.textContent = "";
+
+  const endpoint = activeAuthMode === "signin" ? "/auth/login" : "/auth/signup";
+  try {
+    const res = await fetch(endpoint, {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password })
+    });
+    if (!res.ok) {
+      const data = await res.json();
+      throw new Error(data.detail || "Authentication failed");
+    }
+    currentUser = await res.json();
+    showWorkspace();
+  } catch (err) {
+    errEl.textContent = err.message;
+  }
+}
+
+function showWorkspace() {
+  document.getElementById("auth-view").classList.add("hidden");
+  document.getElementById("workspace").classList.remove("hidden");
+  document.getElementById("user-email-text").textContent = currentUser.email;
+  document.getElementById("avatar-char").textContent = currentUser.email[0].toUpperCase();
+}
+
+async function signOut() {
+  await fetch("/auth/logout", { method: "POST", credentials: "include" });
+  location.reload();
+}
+
+/* ═══ 2. VIEW SWITCHING ═══ */
+function switchView(viewName) {
+  const views = ["chat", "notes", "memories", "audit"];
+  views.forEach(v => {
+    document.getElementById("panel-" + v).classList.add("hidden");
+    document.getElementById("btn-nav-" + v).classList.remove("active");
+  });
+  document.getElementById("panel-" + viewName).classList.remove("hidden");
+  document.getElementById("btn-nav-" + viewName).classList.add("active");
+
+  if (viewName === "notes") fetchNotes();
+  if (viewName === "memories") fetchMemories();
+  if (viewName === "audit") fetchAudit();
+}
+
+/* ═══ 3. CHAT LOGIC ═══ */
+function newChat() {
+  currentThreadId = crypto.randomUUID();
+  document.getElementById("chat-stream").innerHTML = `
+    <div class="chat-welcome" id="chat-welcome">
+      <div class="welcome-icon">⚡</div>
+      <h3>Fresh Conversation Started</h3>
+      <p>Ask a question about your repositories, internal runbooks, or manage GitHub issues.</p>
+      <div class="starter-chips">
+        <button class="chip" onclick="quickPrompt('List open issues')">Inspect GitHub Issues</button>
+        <button class="chip" onclick="quickPrompt('What is our policy on paid sick days?')">Check Sick Leave Policy</button>
+      </div>
+    </div>
+  `;
+}
+
+function quickPrompt(text) {
+  document.getElementById("chat-dock-input").value = text;
+  sendDockMessage();
+}
+
+function handleDockKey(e) {
+  if (e.key === "Enter" && !e.shiftKey) {
+    e.preventDefault();
+    sendDockMessage();
+  }
+}
+
+let statusTimer = null;
+let hasExceededFiveSec = false;
+
+function showStatusIndicator() {
+  removeStatusIndicator();
+  hasExceededFiveSec = false;
+  const feed = document.getElementById("chat-stream");
+  const div = document.createElement("div");
+  div.id = "active-status-indicator";
+  div.className = "msg-bubble msg-status";
+  div.innerHTML = `<span class="pulse-dot"></span><span id="status-indicator-text">Thinking...</span>`;
+  feed.appendChild(div);
+  feed.scrollTop = feed.scrollHeight;
+
+  statusTimer = setTimeout(() => {
+    hasExceededFiveSec = true;
+    const textEl = document.getElementById("status-indicator-text");
+    if (textEl) {
+      textEl.textContent = "Querying tools and finding data... taking a few extra seconds, please wait patiently.";
+    }
+  }, 5000);
+}
+
+function removeStatusIndicator() {
+  if (statusTimer) {
+    clearTimeout(statusTimer);
+    statusTimer = null;
+  }
+  hasExceededFiveSec = false;
+  const el = document.getElementById("active-status-indicator");
+  if (el) el.remove();
+}
+
+async function sendDockMessage() {
+  const input = document.getElementById("chat-dock-input");
+  const text = input.value.trim();
+  if (!text) return;
+  input.value = "";
+
+  const welcome = document.getElementById("chat-welcome");
+  if (welcome) welcome.remove();
+
+  appendChatMsg("user", text);
+  showStatusIndicator();
+
+  try {
+    const res = await fetch("/chat", {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message: text, thread_id: currentThreadId })
+    });
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = "";
+    let eventType = null;
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split("\n");
+      buffer = lines.pop();
+
+      for (const line of lines) {
+        if (line.startsWith("event: ")) eventType = line.slice(7).trim();
+        else if (line.startsWith("data: ") && eventType) {
+          handleChatSSE(eventType, line.slice(6));
+          eventType = null;
+        }
+      }
+    }
+  } catch (err) {
+    removeStatusIndicator();
+    appendChatMsg("assistant", "⚠️ Error connecting to assistant: " + err.message);
+  } finally {
+    removeStatusIndicator();
+  }
+}
+
+function handleChatSSE(event, raw) {
+  let data;
+  try { data = JSON.parse(raw); } catch { data = raw; }
+
+  if (event === "tool_call") {
+    if (!hasExceededFiveSec) {
+      const textEl = document.getElementById("status-indicator-text");
+      if (textEl) {
+        const toolName = (data.tool || "tools").replace("_", " ");
+        textEl.textContent = `Running ${toolName}...`;
+      }
+    }
+  } else if (event === "tool_result") {
+    if (!hasExceededFiveSec) {
+      const textEl = document.getElementById("status-indicator-text");
+      if (textEl) {
+        textEl.textContent = "Processing tool data...";
+      }
+    }
+  } else if (event === "message") {
+    removeStatusIndicator();
+    appendChatMsg("assistant", data.content || data);
+  } else if (event === "approval_required") {
+    removeStatusIndicator();
+    currentThreadId = data.thread_id;
+    showApproval(data.details);
+  } else if (event === "error") {
+    removeStatusIndicator();
+    appendChatMsg("assistant", "⚠️ " + (data.error || "An error occurred"));
+  } else if (event === "complete") {
+    removeStatusIndicator();
+    if (data.thread_id) currentThreadId = data.thread_id;
+  }
+}
+
+function appendChatMsg(role, text) {
+  const feed = document.getElementById("chat-stream");
+  const div = document.createElement("div");
+  div.className = `msg-bubble msg-${role}`;
+  if (role === "assistant" && typeof marked !== "undefined") {
+    div.innerHTML = marked.parse(text);
+  } else {
+    div.textContent = text;
+  }
+  feed.appendChild(div);
+  feed.scrollTop = feed.scrollHeight;
+}
+
+function showApproval(details) {
+  const feed = document.getElementById("chat-stream");
+  const box = document.createElement("div");
+  box.className = "hitl-card";
+  box.innerHTML = `
+    <div class="hitl-title">⚠️ Approval Required: ${escapeHtml(details.action || "Action")}</div>
+    <div class="hitl-details">${escapeHtml(details.message || JSON.stringify(details.args, null, 2))}</div>
+    <div class="hitl-actions">
+      <button class="btn-reject" onclick="resolveApproval(false, this)">Reject</button>
+      <button class="btn-approve" onclick="resolveApproval(true, this)">Approve & Execute</button>
+    </div>
+  `;
+  feed.appendChild(box);
+  feed.scrollTop = feed.scrollHeight;
+}
+
+async function resolveApproval(approved, btn) {
+  btn.closest(".hitl-card").remove();
+  appendChatMsg("user", approved ? "✓ Approved action" : "✗ Rejected action");
+  showStatusIndicator();
+  const endpoint = approved ? "/approve" : "/reject";
+  const body = approved ? { thread_id: currentThreadId } : { thread_id: currentThreadId, reason: "Declined by user." };
+  try {
+    const res = await fetch(endpoint, {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body)
+    });
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = "";
+    let eventType = null;
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split("\n");
+      buffer = lines.pop();
+
+      for (const line of lines) {
+        if (line.startsWith("event: ")) eventType = line.slice(7).trim();
+        else if (line.startsWith("data: ") && eventType) {
+          handleChatSSE(eventType, line.slice(6));
+          eventType = null;
+        }
+      }
+    }
+  } catch (err) {
+    removeStatusIndicator();
+    appendChatMsg("assistant", "⚠️ Error: " + err.message);
+  } finally {
+    removeStatusIndicator();
+  }
+}
+
+/* ═══ 4. KNOWLEDGE BASE ═══ */
+async function fetchNotes() {
+  const grid = document.getElementById("notes-grid");
+  const res = await fetch("/notes", { credentials: "include" });
+  if (!res.ok) return;
+  const data = await res.json();
+  if (!data.notes || data.notes.length === 0) {
+    grid.innerHTML = "<p style='color:#8E877C;'>No documentation runbooks found. Click '+ Add Note' to create one.</p>";
+    return;
+  }
+  grid.innerHTML = data.notes.map(n => `
+    <div class="note-card" onclick="alert('${escapeHtml(n.snippet)}')">
+      <h4>${escapeHtml(n.title)}</h4>
+      <p>${escapeHtml(n.snippet)}</p>
+    </div>
+  `).join("");
+}
+
+function openNoteModal() { document.getElementById("note-modal").classList.remove("hidden"); }
+function closeNoteModal() { document.getElementById("note-modal").classList.add("hidden"); }
+
+async function submitNote() {
+  const title = document.getElementById("in-note-title").value.trim();
+  const content = document.getElementById("in-note-body").value.trim();
+  if (!title || !content) return alert("Title and content are required.");
+  await fetch("/notes", {
+    method: "POST",
+    credentials: "include",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ title, content })
+  });
+  closeNoteModal();
+  document.getElementById("in-note-title").value = "";
+  document.getElementById("in-note-body").value = "";
+  fetchNotes();
+}
+
+/* ═══ 5. MEMORIES & AUDIT ═══ */
+async function fetchMemories() {
+  const list = document.getElementById("memories-list");
+  const res = await fetch("/memories", { credentials: "include" });
+  if (!res.ok) return;
+  const data = await res.json();
+  if (!data.memories || data.memories.length === 0) {
+    list.innerHTML = "<p style='color:#8E877C;'>No long-term preferences stored yet. Chat with the assistant to build memory!</p>";
+    return;
+  }
+  list.innerHTML = data.memories.map(m => `
+    <div class="memory-item"><div class="memory-indicator"></div><div>${escapeHtml(m.text)}</div></div>
+  `).join("");
+}
+
+async function fetchAudit() {
+  const tbody = document.getElementById("audit-table-body");
+  try {
+    const res = await fetch("/audit", { credentials: "include" });
+    if (!res.ok) return;
+    const data = await res.json();
+    if (!data.events || data.events.length === 0) {
+      tbody.innerHTML = "<tr><td colspan='2' style='text-align:center; padding:1.5rem; color:#8E877C;'>No security events logged yet.</td></tr>";
+      return;
+    }
+    tbody.innerHTML = data.events.slice(-25).reverse().map(e => {
+      let desc = "";
+      if (typeof e.event === "object" && e.event !== null) {
+        const type = e.event.event_type || "ACTION";
+        const tool = e.event.tool_name ? ` (${e.event.tool_name})` : "";
+        desc = `<strong>${escapeHtml(type)}</strong>${escapeHtml(tool)}`;
+      } else {
+        desc = escapeHtml(String(e.event || "Security Log"));
+      }
+      const timeStr = e.timestamp ? escapeHtml(e.timestamp.split(" ")[1] || e.timestamp) : "Recent";
+      return `
+        <tr>
+          <td>${desc}</td>
+          <td style="color:#6B645B; font-size:0.82rem;">${timeStr}</td>
+        </tr>
+      `;
+    }).join("");
+  } catch (err) {
+    console.error("Audit load error:", err);
+  }
+}
+
+function escapeHtml(s) {
+  const d = document.createElement("div");
+  d.textContent = String(s);
+  return d.innerHTML;
+}
+
+initSession();
+</script>
+</body>
+</html>

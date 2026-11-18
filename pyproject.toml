@@ -1,0 +1,15 @@
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+
+[tool.ruff]
+line-length = 100
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors (formatting, syntax)
+    "F",   # Pyflakes (unused imports, undefined variables)
+    "I",   # isort (clean, alphabetical import sorting)
+    "B",   # flake8-bugbear (common design pitfalls and bug patterns)
+    "UP",  # pyupgrade (modernizes syntax for Python 3.11/3.12)
+]

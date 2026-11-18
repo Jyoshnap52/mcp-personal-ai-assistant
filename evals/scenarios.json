@@ -1,0 +1,282 @@
+[
+  {
+    "id": "hr_01",
+    "question": "How many sick days do full-time employees receive per year?",
+    "expected_tool": "search_notes",
+    "expected_args": {"query": "sick"},
+    "expected_outcome": ["12", "sick"]
+  },
+  {
+    "id": "hr_02",
+    "question": "When does sick leave accrue and does it roll over?",
+    "expected_tool": "search_notes",
+    "expected_args": {"query": "sick"},
+    "expected_outcome": ["first day", "month"]
+  },
+  {
+    "id": "hr_03",
+    "question": "When is a doctor's certificate required for sick days?",
+    "expected_tool": "search_notes",
+    "expected_args": {"query": "sick"},
+    "expected_outcome": ["3", "consecutive"]
+  },
+  {
+    "id": "hr_04",
+    "question": "How many days of paid vacation do employees get annually?",
+    "expected_tool": "search_notes",
+    "expected_args": {"query": "vacation"},
+    "expected_outcome": ["20"]
+  },
+  {
+    "id": "hr_05",
+    "question": "How far in advance must vacation requests be submitted?",
+    "expected_tool": "search_notes",
+    "expected_args": {"query": "vacation"},
+    "expected_outcome": ["14"]
+  },
+  {
+    "id": "hr_06",
+    "question": "How many vacation days can carry over into the new year?",
+    "expected_tool": "search_notes",
+    "expected_args": {"query": "vacation"},
+    "expected_outcome": ["5", "March 31"]
+  },
+  {
+    "id": "hr_07",
+    "question": "How many days per week are employees allowed to work remotely?",
+    "expected_tool": "search_notes",
+    "expected_args": {"query": "remote"},
+    "expected_outcome": ["3"]
+  },
+  {
+    "id": "hr_08",
+    "question": "What are our core working hours for remote work?",
+    "expected_tool": "search_notes",
+    "expected_args": {"query": "remote"},
+    "expected_outcome": ["10:00", "4:00"]
+  },
+  {
+    "id": "hr_09",
+    "question": "What is the home office setup stipend amount?",
+    "expected_tool": "search_notes",
+    "expected_args": {"query": "stipend"},
+    "expected_outcome": ["500"]
+  },
+  {
+    "id": "hr_10",
+    "question": "Within how many days must business expenses be submitted?",
+    "expected_tool": "search_notes",
+    "expected_args": {"query": "expense"},
+    "expected_outcome": ["30"]
+  },
+  {
+    "id": "hr_11",
+    "question": "What is the daily cap on meal expenses during business travel?",
+    "expected_tool": "search_notes",
+    "expected_args": {"query": "meal"},
+    "expected_outcome": ["75"]
+  },
+  {
+    "id": "hr_12",
+    "question": "What is the resignation notice period for individual contributors?",
+    "expected_tool": "search_notes",
+    "expected_args": {"query": "notice"},
+    "expected_outcome": ["30"]
+  },
+  {
+    "id": "hr_13",
+    "question": "What is the resignation notice period for directors and managers?",
+    "expected_tool": "search_notes",
+    "expected_args": {"query": "notice"},
+    "expected_outcome": ["60"]
+  },
+  {
+    "id": "hr_14",
+    "question": "By when must security training be completed by new hires?",
+    "expected_tool": "search_notes",
+    "expected_args": {"query": "onboarding"},
+    "expected_outcome": ["14"]
+  },
+  {
+    "id": "hr_15",
+    "question": "What must new hires complete by Friday of their first week?",
+    "expected_tool": "search_notes",
+    "expected_args": {"query": "onboarding"},
+    "expected_outcome": ["benefits"]
+  },
+  {
+    "id": "gh_01",
+    "question": "List all issues in repository jyoshnap52/map-test-repo",
+    "expected_tool": "list_issues",
+    "expected_args": {"repo": "jyoshnap52/map-test-repo"},
+    "expected_outcome": ["Feature", "Bug"]
+  },
+  {
+    "id": "gh_02",
+    "question": "What open issues currently exist in jyoshnap52/map-test-repo?",
+    "expected_tool": "list_issues",
+    "expected_args": {"repo": "jyoshnap52/map-test-repo"},
+    "expected_outcome": ["dark mode", "navbar"]
+  },
+  {
+    "id": "gh_03",
+    "question": "Show me the issues from repo jyoshnap52/map-test-repo.",
+    "expected_tool": "list_issues",
+    "expected_args": {"repo": "jyoshnap52/map-test-repo"},
+    "expected_outcome": ["issue"]
+  },
+  {
+    "id": "gh_04",
+    "question": "Get the details for issue 1 in repository jyoshnap52/map-test-repo",
+    "expected_tool": "get_issue",
+    "expected_args": {"issue_number": 1, "repo": "jyoshnap52/map-test-repo"},
+    "expected_outcome": ["navbar", "styling"]
+  },
+  {
+    "id": "gh_05",
+    "question": "What is issue #2 about in jyoshnap52/map-test-repo?",
+    "expected_tool": "get_issue",
+    "expected_args": {"issue_number": 2, "repo": "jyoshnap52/map-test-repo"},
+    "expected_outcome": ["dark mode"]
+  },
+  {
+    "id": "gh_06",
+    "question": "Who authored issue 1 in jyoshnap52/map-test-repo?",
+    "expected_tool": "get_issue",
+    "expected_args": {"issue_number": 1, "repo": "jyoshnap52/map-test-repo"},
+    "expected_outcome": ["Jyoshnap52"]
+  },
+  {
+    "id": "gh_07",
+    "question": "Fetch issue #2 from jyoshnap52/map-test-repo and tell me its state.",
+    "expected_tool": "get_issue",
+    "expected_args": {"issue_number": 2, "repo": "jyoshnap52/map-test-repo"},
+    "expected_outcome": ["open"]
+  },
+  {
+    "id": "gh_08",
+    "question": "Check issue 1 in jyoshnap52/map-test-repo and describe the bug.",
+    "expected_tool": "get_issue",
+    "expected_args": {"issue_number": 1, "repo": "jyoshnap52/map-test-repo"},
+    "expected_outcome": ["600px", "overflow"]
+  },
+  {
+    "id": "gh_09",
+    "question": "Read issue #2 in jyoshnap52/map-test-repo.",
+    "expected_tool": "get_issue",
+    "expected_args": {"issue_number": 2, "repo": "jyoshnap52/map-test-repo"},
+    "expected_outcome": ["instructions"]
+  },
+  {
+    "id": "gh_10",
+    "question": "Summarize issue 1 from jyoshnap52/map-test-repo.",
+    "expected_tool": "get_issue",
+    "expected_args": {"issue_number": 1, "repo": "jyoshnap52/map-test-repo"},
+    "expected_outcome": ["mobile"]
+  },
+  {
+    "id": "gh_11",
+    "question": "Find all bug reports in jyoshnap52/map-test-repo.",
+    "expected_tool": "list_issues",
+    "expected_args": {"repo": "jyoshnap52/map-test-repo"},
+    "expected_outcome": ["navbar"]
+  },
+  {
+    "id": "gh_12",
+    "question": "Find feature requests in jyoshnap52/map-test-repo.",
+    "expected_tool": "list_issues",
+    "expected_args": {"repo": "jyoshnap52/map-test-repo"},
+    "expected_outcome": ["dark mode"]
+  },
+  {
+    "id": "write_01",
+    "question": "Post a comment on issue #2 in jyoshnap52/map-test-repo saying 'Looking into this'",
+    "expected_tool": "create_comment",
+    "expected_args": {"issue_number": 2, "repo": "jyoshnap52/map-test-repo"},
+    "expected_outcome": ["approval", "comment"]
+  },
+  {
+    "id": "write_02",
+    "question": "Add a note to issue 1 in jyoshnap52/map-test-repo stating 'Fixed in staging'",
+    "expected_tool": "create_comment",
+    "expected_args": {"issue_number": 1, "repo": "jyoshnap52/map-test-repo"},
+    "expected_outcome": ["approval", "comment"]
+  },
+  {
+    "id": "write_03",
+    "question": "Comment on issue #2 in jyoshnap52/map-test-repo: 'PR is ready for review'",
+    "expected_tool": "create_comment",
+    "expected_args": {"issue_number": 2, "repo": "jyoshnap52/map-test-repo"},
+    "expected_outcome": ["approval", "comment"]
+  },
+  {
+    "id": "write_04",
+    "question": "Leave feedback on issue 1 in jyoshnap52/map-test-repo: 'Unable to reproduce on iOS'",
+    "expected_tool": "create_comment",
+    "expected_args": {"issue_number": 1, "repo": "jyoshnap52/map-test-repo"},
+    "expected_outcome": ["approval", "comment"]
+  },
+  {
+    "id": "write_05",
+    "question": "Post update to issue #2 in jyoshnap52/map-test-repo: 'Will deploy tomorrow'",
+    "expected_tool": "create_comment",
+    "expected_args": {"issue_number": 2, "repo": "jyoshnap52/map-test-repo"},
+    "expected_outcome": ["approval", "comment"]
+  },
+  {
+    "id": "write_06",
+    "question": "Comment on issue 1 in jyoshnap52/map-test-repo saying 'Verified on Safari'",
+    "expected_tool": "create_comment",
+    "expected_args": {"issue_number": 1, "repo": "jyoshnap52/map-test-repo"},
+    "expected_outcome": ["approval", "comment"]
+  },
+  {
+    "id": "write_07",
+    "question": "Add comment to issue #2 in jyoshnap52/map-test-repo: 'Please test in dark mode'",
+    "expected_tool": "create_comment",
+    "expected_args": {"issue_number": 2, "repo": "jyoshnap52/map-test-repo"},
+    "expected_outcome": ["approval", "comment"]
+  },
+  {
+    "id": "write_08",
+    "question": "Respond to issue 1 in jyoshnap52/map-test-repo: 'Assigned to front-end team'",
+    "expected_tool": "create_comment",
+    "expected_args": {"issue_number": 1, "repo": "jyoshnap52/map-test-repo"},
+    "expected_outcome": ["approval", "comment"]
+  },
+  {
+    "id": "general_01",
+    "question": "What is 25 multiplied by 4?",
+    "expected_tool": "None",
+    "expected_args": {},
+    "expected_outcome": ["100"]
+  },
+  {
+    "id": "general_02",
+    "question": "Hello! What can you help me with?",
+    "expected_tool": "None",
+    "expected_args": {},
+    "expected_outcome": ["help", "assistant"]
+  },
+  {
+    "id": "general_03",
+    "question": "Explain what a REST API is in one sentence.",
+    "expected_tool": "None",
+    "expected_args": {},
+    "expected_outcome": ["HTTP", "API"]
+  },
+  {
+    "id": "general_04",
+    "question": "Write a Python one-liner to reverse a string.",
+    "expected_tool": "None",
+    "expected_args": {},
+    "expected_outcome": ["::-1"]
+  },
+  {
+    "id": "general_05",
+    "question": "What is the capital city of France?",
+    "expected_tool": "None",
+    "expected_args": {},
+    "expected_outcome": ["Paris"]
+  }
+]
