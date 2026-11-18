@@ -6,6 +6,7 @@ services:
     container_name: mcp_assistant_app
     restart: always
     ports:
+      - "80:8000"
       - "8000:8000"
     environment:
       - DATABASE_URL=postgresql://assistant:assistant@postgres:5432/assistant
@@ -13,6 +14,9 @@ services:
       - GROQ_API_KEY=${GROQ_API_KEY}
       - GITHUB_TOKEN=${GITHUB_TOKEN}
       - GITHUB_REPO_ALLOWLIST=${GITHUB_REPO_ALLOWLIST}
+      - LANGCHAIN_TRACING_V2=${LANGCHAIN_TRACING_V2:-true}
+      - LANGCHAIN_API_KEY=${LANGCHAIN_API_KEY}
+      - LANGCHAIN_PROJECT=${LANGCHAIN_PROJECT:-mcp-assistant}
       - LANGFUSE_PUBLIC_KEY=${LANGFUSE_PUBLIC_KEY}
       - LANGFUSE_SECRET_KEY=${LANGFUSE_SECRET_KEY}
       - LANGFUSE_HOST=${LANGFUSE_HOST}
