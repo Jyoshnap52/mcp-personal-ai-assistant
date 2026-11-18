@@ -12,6 +12,7 @@ from langchain_core.messages import (
 from langchain_core.runnables import RunnableConfig
 from langchain_groq import ChatGroq
 from langfuse.langchain import CallbackHandler
+from langgraph.checkpoint.memory import MemorySaver
 from langgraph.checkpoint.postgres import PostgresSaver
 from langgraph.graph import END, START, StateGraph
 from langgraph.graph.message import add_messages
@@ -195,21 +196,26 @@ def should_continue(state: AgentState) -> str:
 
 
 def get_agent_graph():
-    """Builds and compiles the graph using persistent Postgres connection pool."""
-    db_url = os.getenv(
-        "DATABASE_URL",
-        "postgresql://assistant:assistant@localhost:5433/assistant",
-    )
+    """Builds and compiles graph using Postgres checkpointer with MemorySaver fallback."""
+    db_url = os.getenv("DATABASE_URL")
+    checkpointer = None
 
-    # Persistent ConnectionPool ensures the DB connection stays open for all requests!
-    pool = ConnectionPool(
-        conninfo=db_url,
-        max_size=10,
-        open=True,
-        kwargs={"autocommit": True, "prepare_threshold": 0},
-    )
-    checkpointer = PostgresSaver(pool)
-    checkpointer.setup()
+    if db_url:
+        try:
+            pool = ConnectionPool(
+                conninfo=db_url,
+                max_size=10,
+                open=True,
+                kwargs={"autocommit": True, "prepare_threshold": 0},
+            )
+            pg_saver = PostgresSaver(pool)
+            pg_saver.setup()
+            checkpointer = pg_saver
+        except Exception as e:
+            print(f"PostgreSQL checkpointer unavailable ({e}). Falling back to MemorySaver.")
+            checkpointer = MemorySaver()
+    else:
+        checkpointer = MemorySaver()
 
     workflow = StateGraph(AgentState)
     workflow.add_node("agent", call_model)

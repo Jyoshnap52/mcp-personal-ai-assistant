@@ -27,18 +27,25 @@ def _get_conn():
     return psycopg.connect(DATABASE_URL, autocommit=True)
 
 
+# Memory fallback in case PostgreSQL is temporarily down
+_MEMORY_USERS: dict[str, dict] = {}
+
+
 def init_users_table() -> None:
-    """Creates the users table in PostgreSQL if it does not exist."""
-    with _get_conn() as conn:
-        with conn.cursor() as cur:
-            cur.execute("""
-                CREATE TABLE IF NOT EXISTS users (
-                    id UUID PRIMARY KEY,
-                    email VARCHAR(255) UNIQUE NOT NULL,
-                    password_hash TEXT NOT NULL,
-                    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-                );
-            """)
+    """Creates the users table in PostgreSQL if it exists, otherwise falls back gracefully."""
+    try:
+        with _get_conn() as conn:
+            with conn.cursor() as cur:
+                cur.execute("""
+                    CREATE TABLE IF NOT EXISTS users (
+                        id UUID PRIMARY KEY,
+                        email VARCHAR(255) UNIQUE NOT NULL,
+                        password_hash TEXT NOT NULL,
+                        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+                    );
+                """)
+    except Exception as e:
+        print(f"Warning: PostgreSQL user auth DB unavailable ({e}). Running in-memory auth.")
 
 
 init_users_table()
@@ -121,21 +128,40 @@ def create_user(email: str, password: str) -> dict[str, str]:
             status_code=409,
             detail="An account with this email already exists.",
         ) from None
+    except Exception as e:
+        # Graceful fallback to in-memory store if DB is down
+        print(f"Auth DB write failed ({e}), using in-memory store.")
+        if clean_email in _MEMORY_USERS:
+            raise HTTPException(
+                status_code=409,
+                detail="An account with this email already exists.",
+            ) from None
+        _MEMORY_USERS[clean_email] = {"id": user_id, "password_hash": pw_hash}
     return {"user_id": user_id, "email": clean_email}
 
 
 def authenticate_user(email: str, password: str) -> dict[str, str]:
     clean_email = email.strip().lower()
-    with _get_conn() as conn:
-        with conn.cursor() as cur:
-            cur.execute(
-                "SELECT id, email, password_hash FROM users WHERE email = %s;",
-                (clean_email,),
-            )
-            row = cur.fetchone()
-    if not row or not verify_password(password, row[2]):
-        raise HTTPException(status_code=401, detail="Invalid email or password.")
-    return {"user_id": str(row[0]), "email": row[1]}
+    try:
+        with _get_conn() as conn:
+            with conn.cursor() as cur:
+                cur.execute(
+                    "SELECT id, email, password_hash FROM users WHERE email = %s;",
+                    (clean_email,),
+                )
+                row = cur.fetchone()
+        if not row or not verify_password(password, row[2]):
+            raise HTTPException(status_code=401, detail="Invalid email or password.")
+        return {"user_id": str(row[0]), "email": row[1]}
+    except HTTPException:
+        raise
+    except Exception as e:
+        # Graceful fallback check
+        print(f"Auth DB read failed ({e}), checking in-memory store.")
+        user = _MEMORY_USERS.get(clean_email)
+        if not user or not verify_password(password, user["password_hash"]):
+            raise HTTPException(status_code=401, detail="Invalid email or password.") from None
+        return {"user_id": user["id"], "email": clean_email}
 
 
 def get_current_user(mcp_session: str | None = Cookie(default=None)) -> dict[str, str]:
